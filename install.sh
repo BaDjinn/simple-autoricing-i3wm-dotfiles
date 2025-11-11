@@ -100,6 +100,7 @@ echo "Setting permissions..."
 chmod +x ~/.config/i3/autostart.sh 2>/dev/null || echo "Warning: i3 autostart.sh not found"
 chmod +x ~/.config/polybar/launch.sh 2>/dev/null || echo "Warning: polybar launch.sh not found"
 chmod +x ~/.config/Scripts/* 2>/dev/null || echo "Warning: Scripts directory not found"
+chmod +x ~/.config/dunst/* 2>/dev/null || echo "Warning: Scripts doesn't exist"
 find ~/.config/rofi -type f -name "*.sh" -exec chmod +x {} \; 2>/dev/null || echo "Warning: rofi scripts not found"
 
 # Merge Xresources
