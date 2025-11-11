@@ -1,6 +1,6 @@
 #!/bin/bash
 # Generate rofi image
-magick /home/diaz/.config/wpg/.current -resize 800x -quality 100 /home/diaz/.config/wpg/.current-rofi.jpg &
+magick ~/.config/wpg/.current -resize 800x -quality 100 ~/.config/wpg/.current-rofi.jpg &
 
 # Restart polybar di background
 (
