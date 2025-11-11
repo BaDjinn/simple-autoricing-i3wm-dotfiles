@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/.cache/wal/colors.sh
 # Cache wallpaper path
-WALLPAPER="/home/diaz/.config/wpg/.current-rofi.jpg"
+WALLPAPER=~/.config/wpg/.current-rofi.jpg
 LOCK_IMG="/tmp/lockscreen.png"
 
 # Darken dan blur wallpaper (adjust -50 untuk lebih/kurang gelap)
