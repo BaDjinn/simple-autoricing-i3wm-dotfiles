@@ -60,11 +60,6 @@ pipx install wpgtk
 # Add pipx bin to PATH for current session
 export PATH="$HOME/.local/bin:$PATH"
 
-# Run wpgtk setup
-echo "Setting up wpgtk..."
-wpg-install.sh 2>/dev/null || echo "Warning: wpg-install.sh failed or not found"
-wpg-install.sh -i 2>/dev/null || echo "Warning: wpg-install.sh -i failed or not found"
-
 # Copy dotfiles
 echo "Copying dotfiles..."
 cp -r .config ~/
@@ -74,12 +69,16 @@ cp .Xresources ~/
 
 # Move wallpapers to Pictures
 echo "Moving wallpapers..."
-if [ -d "wallpapers" ]; then
+if [ -d "Wallpapers" ]; then
+    mkdir -p ~/Pictures
+    cp -r Wallpapers ~/Pictures/
+    echo "Wallpapers copied to ~/Pictures/Wallpapers"
+elif [ -d "wallpapers" ]; then
     mkdir -p ~/Pictures
     cp -r wallpapers ~/Pictures/
     echo "Wallpapers copied to ~/Pictures/wallpapers"
 else
-    echo "Warning: wallpapers directory not found"
+    echo "Warning: Wallpapers directory not found"
 fi
 
 # Make scripts executable
@@ -111,9 +110,11 @@ echo "  - alacritty, pcmanfm, picom, feh"
 echo "  - jq, bc, xclip, scrot"
 echo "  - firefox, firefox-esr-bin"
 echo "  - pywal, wpgtk, eww"
+echo "  - Nerd Fonts & icon fonts"
 echo ""
 echo "NEXT STEPS:"
 echo "1. Logout and login to i3"
 echo "2. Fish shell will be active on next login"
-echo "3. Check ~/.xsession-errors for any startup errors"
+echo "3. Run 'wpg' to configure wpgtk themes"
+echo "4. Check ~/.xsession-errors for any startup errors"
 echo "================================"
