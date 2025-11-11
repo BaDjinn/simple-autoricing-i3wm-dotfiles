@@ -1,0 +1,21 @@
+set $wallpaper /home/diaz/.config/wpg/wallpapers/street.jpg
+
+set $background #0c1412
+set $foreground #c1a99f
+
+set $color0 #0c1412
+set $color1 #273C43
+set $color2 #4F3C45
+set $color3 #12515A
+set $color4 #35494B
+set $color5 #4B504C
+set $color6 #686056
+set $color7 #c1a99f
+set $color8 #87766f
+set $color9 #273C43
+set $color10 #4F3C45
+set $color11 #12515A
+set $color12 #35494B
+set $color13 #4B504C
+set $color14 #686056
+set $color15 #c1a99f

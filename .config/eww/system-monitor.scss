@@ -1,0 +1,115 @@
+/* ========================================
+   EWW Performance Monitor - SIMPLE BAR VERSION
+   ======================================== */
+
+/* ========================================
+   PERFORMANCE MONITOR WINDOW
+   ======================================== */
+
+.performance-window {
+    background-color: $background;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid $color8;
+}
+
+/* ========================================
+   METRIC BAR CONTAINER
+   ======================================== */
+
+.metric-bar-container {
+    padding: 12px 15px;
+    background-color: $color0;
+    border-radius: 10px;
+    border: 1px solid $color8;
+}
+
+.metric-bar-container:hover {
+    background-color: lighten($color0, 5%);
+    border-color: $color7;
+}
+
+/* ========================================
+   METRIC HEADER
+   ======================================== */
+
+.metric-header {
+    margin-bottom: 5px;
+}
+
+.metric-icon {
+    font-size: 28px;
+    min-width: 35px;
+}
+
+.metric-icon.cpu-color {
+    color: $color1; // Red
+}
+
+.metric-icon.mem-color {
+    color: $color4; // Blue
+}
+
+.metric-icon.disk-color {
+    color: $color2; // Green
+}
+
+.metric-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color7;
+}
+
+.metric-value-text {
+    font-size: 16px;
+    font-weight: bold;
+    color: $foreground;
+}
+
+/* ========================================
+   PROGRESS BAR
+   ======================================== */
+
+.metric-progress-container {
+    margin-top: 5px;
+}
+
+.metric-progress {
+    min-height: 8px;
+    background-color: $color0;
+    border-radius: 4px;
+}
+
+.metric-progress trough {
+    min-height: 8px;
+    background-color: $color8;
+    border-radius: 4px;
+}
+
+.metric-progress highlight {
+    min-height: 8px;
+    border-radius: 4px;
+}
+
+.metric-progress.cpu-color highlight {
+    background-color: $color1;
+}
+
+.metric-progress.mem-color highlight {
+    background-color: $color4;
+}
+
+.metric-progress.disk-color highlight {
+    background-color: $color2;
+}
+
+/* ========================================
+   USAGE TEXT
+   ======================================== */
+
+.metric-usage-text {
+    font-size: 11px;
+    color: $color8;
+    margin-top: 3px;
+}

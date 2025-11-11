@@ -1,0 +1,23 @@
+" Special
+let wallpaper  = "/home/diaz/.config/wpg/wallpapers/street.jpg"
+let background = "#0c1412"
+let foreground = "#c1a99f"
+let cursor     = "#c1a99f"
+
+" Colors
+let color0  = "#0c1412"
+let color1  = "#273C43"
+let color2  = "#4F3C45"
+let color3  = "#12515A"
+let color4  = "#35494B"
+let color5  = "#4B504C"
+let color6  = "#686056"
+let color7  = "#c1a99f"
+let color8  = "#87766f"
+let color9  = "#273C43"
+let color10 = "#4F3C45"
+let color11 = "#12515A"
+let color12 = "#35494B"
+let color13 = "#4B504C"
+let color14 = "#686056"
+let color15 = "#c1a99f"

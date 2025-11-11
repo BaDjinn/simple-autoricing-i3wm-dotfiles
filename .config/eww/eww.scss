@@ -1,0 +1,256 @@
+/* ========================================
+// EWW Control Center - eww.scss (Flat/Dark Style)
+// ======================================== */
+
+/* Import pywal colors */
+@import '/home/diaz/.cache/wal/colors.scss';
+@import "system-monitor.scss";
+@import "calendar.scss";
+
+/* --- Global --- */
+* {
+  all: unset;
+  font-family: "JetBrains Mono Nerd Font", monospace;
+  font-size: 14px;
+  color: $foreground;
+  border: none;
+  box-shadow: none;
+}
+
+/* --- Kontainer Utama --- */
+.control-center-container {
+  background-color: $background;
+  border-radius: 10px;
+  padding: 18px;
+  min-width: 200px;
+  border: 1px solid $color8;
+}
+
+/* --- Garis Pemisah --- */
+.separator {
+  min-height: 1px;
+  background-color: $color8;
+  margin: 8px 0;
+}
+
+/* --- 1. Media Player --- */
+.media-player-container {
+  padding: 5px;
+}
+.media-info {
+  margin-bottom: 10px;
+}
+.media-player-name {
+  font-size: 12px;
+  color: $color8;
+}
+.media-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: $foreground;
+}
+.media-artist {
+  font-size: 13px;
+  color: $color8;
+}
+
+/* Waktu (Posisi & Durasi) */
+.media-time {
+  font-size: 12px;
+  color: $color8;
+  margin-top: 5px;
+}
+
+/* Kontrol Media */
+.media-controls {
+  padding: 0;
+  margin-top: 10px;
+}
+.media-btn {
+  margin: 0;
+  color: $foreground;
+}
+.media-btn-play {
+}
+.media-btn:hover {
+  color: $color15;
+}
+
+/* Progress Bar Media */
+.media-progress trough {
+  min-height: 6px;
+  border-radius: 3px;
+  background: $color0;
+}
+.media-progress highlight {
+  min-height: 6px;
+  border-radius: 3px;
+  background: $color4;
+}
+
+/* --- 2. Quick Toggles --- */
+.quick-toggles-container {
+  padding: 5px 0;
+  margin-bottom: -20px;
+}
+
+.toggle-widget {
+  min-width: 100px;
+  margin-bottom: 0;
+}
+
+.toggle-icon {
+  font-size: 24px;
+  color: $color7;
+  background-color: $color0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: -10px;
+
+  min-width: 24px;
+  min-height: 24px;
+
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.toggle-icon:hover {
+  background-color: $color8;
+}
+
+/* Styling saat aktif */
+.toggle-icon.bt-active {
+  background-color: $color4;
+  color: $color15;
+}
+.toggle-icon.wifi-active {
+  background-color: $color3;
+  color: $color15;
+}
+
+/* BARU: Styling untuk Night Mode aktif */
+.toggle-icon.night-active {
+  background-color: $color5;
+  color: $color15;
+}
+.toggle-icon.night-active:hover {
+  background-color: $color13;
+}
+
+.toggle-label {
+  font-size: 12px;
+  color: $color7;
+}
+
+/* --- 3. Sliders --- */
+.sliders-container {
+  padding: 5px;
+}
+
+.slider-percentage {
+  font-size: 13px;
+}
+
+.slider-row {
+  margin: 2px 0;
+}
+.slider-icon {
+  font-size: 18px;
+  color: $color7;
+}
+
+.system-slider trough {
+  background: $color0;
+  min-height: 8px;
+  border-radius: 4px;
+}
+.system-slider highlight {
+  background: $color4;
+  min-height: 8px;
+  border-radius: 4px;
+}
+/* Titik di slider */
+.system-slider slider {
+  background: $foreground;
+  border-radius: 50%;
+  min-width: 16px;
+  min-height: 16px;
+  margin: -4px 0;
+}
+
+/* --- 4. Notifications (BARU) --- */
+.notification-center-container {
+  padding: 5px;
+}
+
+.notification-header {
+  margin: 0 5px;
+}
+
+.notification-header-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: $foreground;
+}
+
+.clear-all-btn {
+  font-size: 12px;
+  color: $color8;
+  background-color: $color0;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+.clear-all-btn:hover {
+  background-color: $color8;
+  color: $foreground;
+}
+
+.notification-list-scroll {
+  margin-top: 5px;
+}
+
+/* Kotak untuk setiap item notifikasi */
+.notification-item {
+  background-color: $color0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 0 2px;
+}
+
+/* Kontainer untuk ikon (agar ukurannya tetap) */
+.notification-icon-container {
+  min-width: 32px;
+  min-height: 32px;
+  margin-right: 5px;
+  border-radius: 8px;
+  background-color: $background;
+}
+.notification-app-icon {
+  border-radius: 8px;
+}
+
+/* Teks notifikasi */
+.notification-appname {
+  font-size: 13px;
+  font-weight: bold;
+  color: $foreground;
+}
+.notification-summary {
+  font-size: 12px;
+  color: $color7;
+}
+
+/* Tombol close 'X' per notifikasi */
+.notification-close-btn {
+  font-size: 14px;
+  color: $color8;
+  margin-left: 5px;
+}
+.notification-close-btn:hover {
+  color: $color1;
+}
+
+/* Teks saat tidak ada notifikasi */
+.notification-footer {
+  margin-top: 10px;
+  color: $color8;
+  font-size: 13px;
+}

@@ -1,0 +1,522 @@
+;; ========================================
+;; EWW Control Center - eww.yuck (Flat/Dark Style - Fixed)
+;; ========================================
+;; ----------------------------------------
+;; DEFINISI POLLING (DIPERBARUI)
+;; ----------------------------------------
+(defpoll active_player :interval "1s"
+  :initial ""
+  `playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1 || echo ""`)
+
+(defpoll media_title :interval "1s"
+  :initial ""
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" metadata --format "{{ title }}" 2>/dev/null || echo ""`)
+
+(defpoll media_artist :interval "1s"
+  :initial ""
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" metadata --format "{{ artist }}" 2>/dev/null || echo ""`)
+
+(defpoll media_status :interval "1s"
+  :initial "Stopped"
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" status 2>/dev/null || echo "Stopped"`)
+
+(defpoll media_player :interval "1s"
+  :initial ""
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" metadata --format "{{ playerName }}" 2>/dev/null || echo ""`)
+
+(defpoll media_position :interval "1s"
+  :initial "0"
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" position 2>/dev/null | cut -d'.' -f1 || echo "0"`)
+
+(defpoll media_length_pretty :interval "5s"
+  :initial "0:00"
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" metadata --format "{{ duration(mpris:length) }}" 2>/dev/null || echo "0:00"`)
+
+(defpoll media_position_pretty :interval "1s"
+  :initial "0:00"
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" metadata --format "{{ duration(position) }}" 2>/dev/null || echo "0:00"`)
+  
+(defpoll media_length_sec :interval "5s"
+  :initial "100"
+  `playerctl -p "$(playerctl -l 2>/dev/null | grep -v kdeconnect | head -n1)" metadata mpris:length 2>/dev/null | awk '{print int($1/1000000)}' || echo "100"`)
+
+;; Polls sistem
+(defpoll volume_level :interval "500ms" 
+  :initial "50"
+  `pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | grep 'Volume:' | head -n1 | awk '{print $5}' | tr -d '%' || echo "50"`)
+
+(defpoll brightness_level :interval "500ms"
+  :initial "50" 
+  `brightnessctl g 2>/dev/null | awk -v max=$(brightnessctl m 2>/dev/null) '{print int($1/max*100)}' || echo "50"`)
+
+(defpoll bluetooth_status :interval "1s"
+  :initial "no"
+  `bluetoothctl show | grep "Powered:" | awk '{print $2}' || echo "no"`)
+
+(defpoll night_mode_status :interval "2s"
+  :initial "off"
+  `[ -f /tmp/night_mode_status ] && cat /tmp/night_mode_status || echo "off"`)
+
+(defpoll wifi_status :interval "500ms"
+  :initial "disabled"
+  `nmcli radio wifi || echo "disabled"`)
+
+;; Poll untuk Notifikasi (Dunst) - UPDATED
+(defpoll notification_count :interval "2s"
+  :initial "0"
+  `dunstctl count history || echo 0`)
+
+(defpoll notification_history :interval "500ms"
+  :initial "[]"
+  `~/.config/eww/scripts/get_notifications.sh`)
+
+;; CALENDAR
+(defpoll DATE_HEADER :interval "30s" 
+  "date +'%A, %d %B'")
+
+(defpoll CPU_TEMP :interval "2s" 
+  :initial "0"
+  "sensors | grep -i 'core 0' | awk '{print $3}' | tr -d '+°C' | cut -d. -f1 || cat /sys/class/hwmon/hwmon*/temp1_input 2>/dev/null | head -1 | awk '{printf \"%.0f\", $1/1000}' || echo '0'")
+
+;; CPU Usage
+(defpoll CPU_USAGE :interval "2s" 
+  :initial "0"
+  "top -bn1 | grep 'Cpu(s)' | awk '{print 100 - $8}' | cut -d. -f1")
+
+;; Memory Usage
+(defpoll MEM_USAGE_GB :interval "2s" 
+  :initial "0"
+  "free -h | awk '/^Mem/ {print $3}' | sed 's/i//'")
+
+(defpoll MEM_USAGE_PERC :interval "2s" 
+  :initial "0"
+  "free | awk '/Mem/ {printf \"%.0f\", $3/$2*100}'")
+
+(defpoll MEM_TOTAL :interval "30s"
+  :initial "0"
+  "free -h | awk '/^Mem/ {print $2}' | sed 's/i//'")
+
+;; Disk Usage
+(defpoll DISK_USAGE_GB :interval "5s"
+  :initial "0"
+  "df -h / | awk 'NR==2 {print $3}'")
+
+(defpoll DISK_USAGE_PERC :interval "5s"
+  :initial "0"
+  "df / | awk 'NR==2 {print $5}' | tr -d '%'")
+
+(defpoll DISK_TOTAL :interval "30s"
+  :initial "0"
+  "df -h / | awk 'NR==2 {print $2}'")
+
+;; ------------------------------------
+;; WIDGET CALENDAR
+;; -------------------------------------
+
+(defwidget calendar_widget []
+  (box :class "cal-box"
+       :orientation "v"
+       :spacing 5
+       :space-evenly false
+       :vexpand false
+       :valign "start"
+    
+    ;; Header Tanggal
+    (label :class "cal-header-date"
+           :halign "start"
+           :text DATE_HEADER
+           :vexpand false)
+    
+    ;; Widget Kalender
+    (calendar :class "cal"
+              :vexpand false
+              :valign "start")
+  ))
+
+;;-------------------------------------
+;;SYSTEM MONITOR
+;;-------------------------------------
+(defwidget metric_bar [icon label value usage_text percentage color_class]
+  (box :class "metric-bar-container" 
+       :orientation "v" 
+       :space-evenly false 
+       :spacing 8
+    
+    ;; Header dengan icon dan label
+    (box :class "metric-header"
+         :orientation "h"
+         :space-evenly false
+         :spacing 10
+      (label :class "metric-icon ${color_class}" 
+             :text icon)
+      (box :orientation "v"
+           :space-evenly false
+           :spacing 2
+           :hexpand true
+        (label :class "metric-label" 
+               :text label
+               :xalign 0)
+        (label :class "metric-value-text" 
+               :text value
+               :xalign 0)))
+    
+    ;; Progress bar
+    (box :class "metric-progress-container"
+         :orientation "v"
+         :space-evenly false
+         :spacing 5
+      (scale :class "metric-progress ${color_class}"
+             :value percentage
+             :min 0
+             :max 100
+             :active false)
+      (label :class "metric-usage-text"
+             :text usage_text
+             :xalign 0))
+  ))
+
+;; ----------------------------------------
+;; WIDGET MEDIA PLAYER
+;; ----------------------------------------
+(defwidget media_player []
+  (box :class "media-player-container"
+       :orientation "v"
+       :space-evenly false
+       :spacing 0
+    
+    (box :class "media-info"
+         :orientation "v"
+         :space-evenly false
+         :hexpand true
+         :halign "start"
+      (label :class "media-player-name"
+             :text media_player
+             :visible {media_player != ""}
+             :xalign 0)
+      (label :class "media-title"
+             :text media_title
+             :limit-width 40
+             :xalign 0)
+      (label :class "media-artist"
+             :text media_artist
+             :limit-width 40
+             :xalign 0))
+    
+    (scale :class "media-progress"
+           :min 0
+           :max media_length_sec
+           :value media_position
+           :onchange "playerctl position {}")
+           
+    (box :class "media-time"
+         :orientation "h"
+         :space-evenly false
+      (label :class "media-time-pos"
+             :text media_position_pretty
+             :halign "start"
+             :hexpand true)
+      (label :class "media-time-len"
+             :text media_length_pretty
+             :halign "end"
+             :hexpand true))
+    
+    (box :class "media-controls"
+         :halign "center"
+         :spacing 15
+
+  (button :class "media-btn"
+          :onclick "playerctl previous"
+   (box :width 40 :height 40 :halign "center" :valign "center"
+    (label :text "󰒮" :style "font-size: 28px;")))
+      
+  (button :class "media-btn-play"
+          :onclick "playerctl play-pause"
+   (box :width 40 :height 40 :halign "center" :valign "center"
+    (label :text {media_status == "Playing" ? "󰏤" : "󰐊"}
+	   :style "font-size: 32px;")))  
+      
+  (button :class "media-btn"
+          :onclick "playerctl next"
+   (box :width 40 :height 40 :halign "center" :valign "center"
+    (label :text "󰒭" :style "font-size: 28px;")))) 
+))
+
+;; ----------------------------------------
+;; WIDGET TOGGLE
+;; ----------------------------------------
+(defwidget toggle_widget [icon label ?onclick ?active_class]
+  (box :class "toggle-widget"
+       :orientation "v"
+       :spacing 0
+       :valign "center"
+       :halign "fill"
+    
+  (button :class "toggle-icon ${active_class}"
+        :onclick {onclick != "" ? onclick : ""}
+  (box :width 30 :height 30 :halign "center" :valign "center"
+    (label :text icon :style "font-size: 20px;")))
+
+    (label :class "toggle-label"
+           :text label
+           :xalign 0.5)  
+))
+
+;; ----------------------------------------
+;; WIDGET UNTUK SATU ITEM NOTIFIKASI - FIXED
+;; ----------------------------------------
+(defwidget notification_item [appname summary id icon_path]
+  (box :class "notification-item"
+       :orientation "h"
+       :spacing 10
+       :space-evenly false
+    
+    ;; Ikon Notifikasi
+    (box :class "notification-icon-container"
+         :visible {icon_path != "" && icon_path != "null"}
+      (label :text "🔔" :style "font-size: 24px;"))
+    
+    ;; Teks Notifikasi
+    (box :class "notification-text-container"
+         :orientation "v"
+         :halign "start"
+         :valign "center"
+         :hexpand true
+         :space-evenly false
+      (label :class "notification-appname"
+             :text appname
+             :xalign 0
+             :limit-width 35)
+      (label :class "notification-summary"
+             :text summary
+             :xalign 0
+             :wrap true
+             :limit-width 35))
+    
+    ;; Button close yang berfungsi
+    (button :class "notification-close-btn"
+            :onclick "dunstctl history-rm ${id} && eww update notification_history=$(~/.config/eww/scripts/get_notifications.sh)"
+      (label :text "✕"))
+  )
+)
+
+;; ----------------------------------------
+;; WIDGET QUICK TOGGLES (UPDATED)
+;; ----------------------------------------
+(defwidget quick_toggles []
+  (box :class "quick-toggles-container"
+       :orientation "h"
+       :spacing 15
+       :halign "fill"
+       :valign "center"
+       :space-evenly true
+
+    ;; 1. WiFi
+    (toggle_widget :icon {wifi_status == "enabled" ? " " : ""}
+                   :label {wifi_status == "enabled" ? "On" : "Off"}
+                   :onclick "~/.config/eww/scripts/toggle_wifi.sh"
+                   :active_class {wifi_status == "enabled" ? "wifi-active" : ""})
+    
+    ;; 2. Bluetooth
+    (toggle_widget :icon {bluetooth_status == "yes" ? "󰂯" : "󰂲"}
+                   :label {bluetooth_status == "yes" ? "On" : "Off"}
+                   :onclick "~/.config/eww/scripts/toggle_bluetooth.sh"
+                   :active_class {bluetooth_status == "yes" ? "bt-active" : ""})
+
+    ;; 3. Night Mode (UPDATED)
+    (toggle_widget :icon "🌙"
+                   :label {night_mode_status == "on" ? "On" : "Off"}
+                   :onclick "~/.config/eww/scripts/toggle_night_mode.sh"
+                   :active_class {night_mode_status == "on" ? "night-active" : ""})
+  ))
+
+;; ----------------------------------------
+;; WIDGET UNTUK PUSAT NOTIFIKASI - FIXED
+;; ----------------------------------------
+(defwidget notification_center []
+  (box :class "notification-center-container"
+       :orientation "v"
+       :space-evenly false
+       :spacing 5
+    
+    ;; Header Notifikasi - FIXED
+    (box :class "notification-header"
+         :orientation "h"
+         :space-evenly false
+      (label :class "notification-header-title"
+             :text "Notifications"
+             :halign "start"
+             :hexpand true)
+      (button :class "clear-all-btn"
+              :onclick "dunstctl history-clear && eww update notification_history='[]'"
+        (label :text "Clear all")))
+    
+    (separator)
+    
+    ;; Daftar Notifikasi (dengan scroll)
+    (scroll :class "notification-list-scroll"
+            :height 150
+            :vscroll true
+            :hscroll false
+      (box :class "notification-list"
+           :orientation "v"
+           :spacing 8
+           :valign {notification_count == 0 ? "center" : "start"}
+           :vexpand true
+           ;; Loop melalui hasil script
+           (for notification in notification_history
+             (notification_item
+                 :appname {notification.appname}
+                 :summary {notification.summary}
+                 :id {notification.id}
+                 :icon_path {notification.icon}
+             )
+           )
+           
+           ;; Footer di DALAM scroll - tampil saat tidak ada notifikasi
+           (box :class "notification-footer"
+                :halign "center"
+                :valign "center"
+                :vexpand true
+                :visible {notification_count == 0}
+             (label :text "No new notifications"))
+      )
+    )
+))
+
+;; ----------------------------------------
+;; WIDGET SEPARATOR
+;; ----------------------------------------
+(defwidget separator []
+  (box :class "separator" :hexpand true))
+
+;; ----------------------------------------
+;; WIDGET SLIDER
+;; ----------------------------------------
+(defwidget slider_row [icon_left value onchange ?icon_right]
+  (box :class "slider-row" 
+       :spacing 15 
+       :space-evenly false
+       :valign "center"
+    (label :class "slider-icon" :text icon_left)
+    (scale :class "system-slider"
+           :min 0
+           :max 101
+           :value value
+           :orientation "h"
+           :onchange onchange
+           :hexpand true)
+    (label :class "slider-percentage"
+           :text "${value}%"
+           :style "min-width: 45px;")
+    (label :class "slider-icon"
+           :text {icon_right != "" ? icon_right : ""}
+           :visible {icon_right != ""})
+  ))
+
+;; ----------------------------------------
+;; WIDGET CONTROL CENTER UTAMA
+;; ----------------------------------------
+(defwidget control_center []
+  (box :class "control-center-container"
+       :orientation "v"
+       :spacing 0
+       :space-evenly false  
+       :valign "start"
+    
+    (media_player)
+    (separator)
+    (quick_toggles)
+    (separator)
+   
+    (box :class "sliders-container" 
+         :orientation "v" 
+         :spacing 10
+         :space-evenly false
+      (slider_row :icon_left " "
+                  :value brightness_level
+                  :onchange "brightnessctl s {}%")
+      (slider_row :icon_left " "
+                  :value volume_level
+                  :onchange "pactl set-sink-volume @DEFAULT_SINK@ {}%")
+    )
+      (separator)
+      (notification_center)
+  ))
+
+;;----------------------------------------------------
+;; Performance Widget
+;;-----------------------------------------------------
+(defwidget performance_widget []
+  (box :class "performance-window" 
+       :orientation "v" 
+       :spacing 15
+       :space-evenly false
+    
+    ;; CPU
+    (metric_bar 
+        :icon ""
+        :label "CPU"
+        :value "${CPU_TEMP}°C"
+        :usage_text "${CPU_USAGE}% Usage"
+        :percentage CPU_USAGE
+        :color_class "cpu-color")
+    
+    ;; Memory
+    (metric_bar 
+        :icon ""
+        :label "Memory"
+        :value "${MEM_USAGE_GB} / ${MEM_TOTAL}"
+        :usage_text "${MEM_USAGE_PERC}% Used"
+        :percentage MEM_USAGE_PERC
+        :color_class "mem-color")
+    
+    ;; Disk
+    (metric_bar 
+        :icon ""
+        :label "Disk"
+        :value "${DISK_USAGE_GB} / ${DISK_TOTAL}"
+        :usage_text "${DISK_USAGE_PERC}% Used"
+        :percentage DISK_USAGE_PERC
+        :color_class "disk-color")
+  ))
+
+;; ----------------------------------------
+;; JENDELA UTAMA
+;; ----------------------------------------
+(defwindow control_center_window
+  :monitor 0
+  :geometry (geometry :x "-17px"
+                      :y "34px"
+                      :anchor "top right")
+  :stacking "overlay"
+  :focusable false
+  :windowtype "normal"
+  :wm-ignore false
+  (control_center))
+
+(defwindow calendar_popup
+  :monitor 0
+  :geometry (geometry :x "-15px"
+                      :y "52px"
+                      :width "250px"
+                      :height "280px"
+                      :anchor "top right")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  :windowtype "dialog"
+  :wm-ignore false
+  (calendar_widget))
+
+(defwindow performance_monitor
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "52px"
+                      :width "480px"
+                      :height "200px"
+                      :anchor "top center")
+  :stacking "overlay"
+  :exclusive false
+  :windowtype "dialog"
+  :wm-ignore false
+  (performance_widget))
