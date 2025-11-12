@@ -168,7 +168,6 @@ For a complete list of keybindings, check `~/.config/i3/config`
 <div align="center">
 <img src="./Screenshot/wpg-selector.png" alt="WPG Wallpaper Selector" width="600"/>
 <br/>
-<sub><b>Interactive Wallpaper Selector</b></sub>
 </div>
 
 Launch interactive wallpaper selector with keybinding:
