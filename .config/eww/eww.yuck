@@ -521,8 +521,8 @@
   :monitor 0
   :geometry (geometry :x "-15px"
                       :y "52px"
-                      :width "250px"
-                      :height "280px"
+                      :width "300px"
+                      :height "330px"
                       :anchor "top right")
   :stacking "overlay"
   :exclusive false
