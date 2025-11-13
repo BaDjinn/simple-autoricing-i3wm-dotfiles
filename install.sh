@@ -152,6 +152,30 @@ mkdir -p ~/.config/{i3,polybar,rofi,dunst,alacritty,picom}
 mkdir -p ~/.local/share
 mkdir -p ~/.cache
 
+# Initialize wpg with default theme
+echo "Initializing wpg with default theme..."
+if command -v wpg &> /dev/null; then
+    if [ -f ~/Pictures/Wallpapers/dark_mountain.jpg ]; then
+        echo "Setting up dark_mountain theme..."
+        wpg -a ~/Pictures/Wallpapers/dark_mountain.jpg 2>/dev/null
+        
+        # Apply theme
+        if wpg -s dark_mountain.jpg 2>/dev/null; then
+            echo "✅ Default theme applied successfully!"
+        else
+            echo "⚠️  Theme setup requires logout/login"
+            echo "After login, run: wpg -s dark_mountain.jpg"
+        fi
+    else
+        echo "⚠️  Warning: dark_mountain.jpg not found"
+        echo "Available wallpapers:"
+        ls ~/Pictures/Wallpapers/ 2>/dev/null || echo "  No wallpapers found"
+    fi
+else
+    echo "⚠️  wpg not available yet (pipx path issue)"
+    echo "After logout/login, run: wpg -s dark_mountain.jpg"
+fi
+
 echo ""
 echo "================================"
 echo "Installation Complete!"
