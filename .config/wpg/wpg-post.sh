@@ -1,20 +1,29 @@
 #!/bin/bash
+
+# Kill proses lama dengan benar
+pkill -x xsettingsd
+killall -q polybar
+
+# Tunggu proses benar-benar mati
+sleep 0.8
+
 # Generate rofi image
 magick ~/.config/wpg/.current -resize 800x -quality 100 ~/.config/wpg/.current-rofi.jpg &
 
-# Restart polybar di background
-(
-  killall -q polybar
-  sleep 0.5
-  polybar example 2>&1 | tee -a /tmp/polybar.log >/dev/null &
-) &
-
+# Generate dunstrc
 bash ~/.config/dunst/generate-dunstrc.sh &
 
-# Reload eww setelah pywal generate warna baru
-eww reload &
+# Tunggu sebentar biar file warna ke-generate dulu
+sleep 0.3
 
+# Start xsettingsd (hanya jika belum running)
 pgrep -x xsettingsd > /dev/null || xsettingsd &
+
+# Start polybar
+polybar example 2>&1 | tee -a /tmp/polybar.log >/dev/null &
+
+# Reload eww
+eww reload &
 
 # Reload i3 config
 i3-msg reload &
