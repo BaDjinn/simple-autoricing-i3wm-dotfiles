@@ -108,6 +108,23 @@ else
     echo "Warning: Wallpapers directory not found"
 fi
 
+echo "Initializing wpg with your wallpapers..."
+
+# Clean old schemes
+rm -rf ~/.config/wpg/schemes/* 2>/dev/null
+rm -rf ~/.cache/wal/* 2>/dev/null
+
+# Auto-add wallpapers (optional)
+if command -v wpg &> /dev/null; then
+    echo "Adding wallpapers to wpg..."
+    for wallpaper in ~/Pictures/Wallpapers/*; do
+        [ -f "$wallpaper" ] && wpg -a "$wallpaper" 2>/dev/null
+    done
+    echo "✅ Wallpapers added! Use 'wpg -s <name>' to apply"
+else
+    echo "⚠️  Run 'wpg -a ~/Pictures/Wallpapers/<file>' to add wallpapers"
+fi
+
 # Make scripts executable
 echo "Setting permissions..."
 chmod +x ~/.config/i3/autostart.sh 2>/dev/null || echo "Warning: i3 autostart.sh not found"
