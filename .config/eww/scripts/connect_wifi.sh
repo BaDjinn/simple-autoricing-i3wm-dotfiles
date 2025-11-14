@@ -17,12 +17,14 @@ fi
 
 log_msg "Attempting to connect to: $SSID"
 
+notify-send "WiFi" "Connecting to $SSID..." -t 20000
+
 # Function to prompt for password
 prompt_password() {
     local password=""
     if command -v rofi &> /dev/null; then
         password=$(rofi -dmenu -password \
-            -p "🔐 $SSID" \
+            -p "ðŸ” $SSID" \
             -theme ~/.config/rofi/wifi-password.rasi 2>/dev/null \
             -mesg "Enter WiFi Password")
     elif command -v zenity &> /dev/null; then
@@ -79,7 +81,7 @@ if [ -n "$KNOWN" ]; then
         
         # Check if it's a password/authentication error
         if echo "$ERROR_MSG" | grep -qi "secret\|password\|auth\|802-1x\|psk"; then
-            notify-send "WiFi" "Wrong password. Please re-enter..."
+            notify-send "WiFi" "Wrong password. Please re-enter..." -t 10000 
             log_msg "Detected authentication error, prompting for new password"
             
             # Prompt for new password
@@ -97,7 +99,7 @@ if [ -n "$KNOWN" ]; then
             sleep 0.5
             
             log_msg "Attempting connection with new password..."
-            notify-send "WiFi" "Connecting to $SSID..."
+            notify-send "WiFi" "Connecting Pass to $SSID..." -t 40000 
             
             ERROR_MSG=$(nmcli device wifi connect "$SSID" password "$PASSWORD" 2>&1)
             EXIT_CODE=$?
@@ -167,6 +169,3 @@ else
     log_msg "Error: $ERROR_MSG"
     exit 1
 fi
-
-
-  

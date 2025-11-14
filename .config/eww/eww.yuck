@@ -428,8 +428,7 @@
        :orientation "v"  
        :spacing -5
        :space-evenly false
-       :vpack "start"
-    
+           
     ;; Row pertama: 3 toggle buttons (WiFi, BT, Night)
     (box :class "quick-toggles-row"
          :orientation "h"
