@@ -25,7 +25,7 @@ mkdir -p $BACKUP_DIR
 echo "Installing system packages..."
 sudo pacman -S --needed --noconfirm \
     i3-wm i3status i3lock polybar alacritty pcmanfm rofi picom feh scrot xclip \
-    brightnessctl imagemagick xsettingsd base-devel git \
+    brightnessctl playerctl imagemagick xsettingsd base-devel git \
     python python-pip python-pipx fish redshift \
     jq bc dunst
 
