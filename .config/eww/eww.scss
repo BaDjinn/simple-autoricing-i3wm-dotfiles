@@ -6,6 +6,7 @@
 @import "colors.scss";
 @import "system-monitor.scss";
 @import "calendar.scss";
+@import "clock.scss";
 
 /* --- Global --- */
 * {
@@ -70,8 +71,10 @@
   margin: 0;
   color: $foreground;
 }
+
 .media-btn-play {
 }
+
 .media-btn:hover {
   color: $color15;
 }
@@ -91,7 +94,11 @@
 /* --- 2. Quick Toggles --- */
 .quick-toggles-container {
   padding: 5px 0;
-  margin-bottom: -20px;
+  margin-bottom: 0px;
+}
+
+.quick-toggles-row {
+  margin-bottom: -10px;
 }
 
 .toggle-widget {
@@ -254,3 +261,206 @@
   color: $color8;
   font-size: 13px;
 }
+
+// ======================================== */
+
+/* WiFi Widget Container */
+.wifi-expanded-panel {
+  padding: 0px;
+  background-color: $color0;
+  border-radius: 10px;
+}
+
+.wifi-current-icon {
+  font-size: 16px;
+}
+
+.wifi-current-label {
+  font-size: 13px;
+  color: $foreground;
+  font-weight: 500;
+}
+
+/* Scan/Refresh Button */
+.wifi-scan-btn {
+  background-color: $background;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 3px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: $color7;
+  transition: background-color 0.2s ease;
+}
+.wifi-scan-btn:hover {
+  background-color: $color8;
+  color: $foreground;
+}
+
+/* Networks Scroll Container */
+.wifi-networks-scroll {
+  margin-bottom: 8px;
+}
+
+/* Individual WiFi Network Item */
+.wifi-network-item {
+  background-color: $background;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 2px 0;
+  transition: all 0.2s ease;
+}
+.wifi-network-item:hover {
+  background-color: $color8;
+}
+
+/* Connected network highlight */
+.wifi-network-item.wifi-connected {
+  background-color: rgba($color4, 0.2);
+  border-left: 3px solid $color4;
+}
+
+.wifi-signal-icon {
+  font-size: 16px;
+  min-width: 24px;
+}
+
+.wifi-ssid-label {
+  font-size: 13px;
+  color: $foreground;
+}
+
+.wifi-security-icon {
+  font-size: 14px;
+  color: $color8;
+  min-width: 20px;
+}
+
+.wifi-connected-icon {
+  font-size: 16px;
+  color: $color2;
+  font-weight: bold;
+}
+
+/* No Networks Message */
+.wifi-no-networks {
+  padding: 20px;
+  color: $color8;
+  font-size: 13px;
+}
+
+/* WiFi Power Toggle Button */
+.wifi-power-toggle {
+  background-color: $background;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+  color: $color7;
+  transition: background-color 0.2s ease;
+}
+.wifi-power-toggle:hover {
+  background-color: $color1;
+  color: $foreground;
+}
+
+/* Bluetooth Expanded Panel */
+.bt-expanded-panel {
+  margin-top: 10px;
+  padding: 0px;
+  background-color: $color0;
+  border-radius: 10px;
+}
+
+/* Scan/Refresh Button */
+.bt-scan-btn {
+  background-color: $background;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 3px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: $color7;
+  transition: background-color 0.2s ease;
+}
+.bt-scan-btn:hover {
+  background-color: $color8;
+  color: $foreground;
+}
+
+/* Devices Scroll Container */
+.bt-devices-scroll {
+  margin-bottom: 8px;
+}
+
+/* Individual Bluetooth Device Item */
+.bt-device-item {
+  background-color: $background;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 2px 0;
+  transition: all 0.2s ease;
+}
+.bt-device-item:hover {
+  background-color: $color8;
+}
+
+/* Connected device highlight */
+.bt-device-item.bt-connected {
+  background-color: rgba($color4, 0.2);
+  border-left: 3px solid $color4;
+}
+
+.bt-type-icon {
+  font-size: 16px;
+  min-width: 24px;
+}
+
+.bt-name-label {
+  font-size: 13px;
+  color: $foreground;
+}
+
+.bt-paired-icon {
+  font-size: 14px;
+  color: $color2;
+  min-width: 20px;
+}
+
+/* Action Buttons */
+.bt-action-btn {
+  background-color: $color0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+.bt-action-btn:hover {
+  background-color: $color8;
+}
+.bt-action-btn.bt-unpair:hover {
+  background-color: $color1;
+}
+
+/* No Devices Message */
+.bt-no-devices {
+  padding: 20px;
+  color: $color8;
+  font-size: 13px;
+}
+
+/* Bluetooth Power Toggle Button */
+.bt-power-toggle {
+  background-color: $background;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+  color: $color7;
+  transition: background-color 0.2s ease;
+}
+.bt-power-toggle:hover {
+  background-color: $color4;
+  color: $foreground;
+}
+
+
+
