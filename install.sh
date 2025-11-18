@@ -41,6 +41,7 @@ sudo pacman -S --needed --noconfirm \
 echo "Installing AUR packages..."
 $AUR_HELPER -S --needed --noconfirm \
     eww \
+    mpdris2 \
     ttf-jetbrains-mono-nerd \
     ttf-iosevka-nerd \
     ttf-twemoji
