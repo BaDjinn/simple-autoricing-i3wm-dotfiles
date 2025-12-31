@@ -138,7 +138,7 @@ Inspired by [chameleon-lizard/autorice](https://github.com/chameleon-lizard/auto
 
 ---
 
-## 📞 Support
+## Support
 
 - [GitHub Issues](https://github.com/MDiaznf23/simple-autoricing-i3wm-dotfiles/issues)
 - [Arch Wiki](https://wiki.archlinux.org/)
