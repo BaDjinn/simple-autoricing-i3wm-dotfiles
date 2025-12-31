@@ -69,6 +69,12 @@ pipx ensurepath
 pipx install pywal
 pipx install wpgtk
 
+# Inject dependencies ke wpgtk venv
+echo "Installing wpgtk dependencies..."
+pipx inject wpgtk colorz
+pipx inject wpgtk haishoku
+pipx inject wpgtk colorthief
+
 # Add pipx bin to PATH for current session
 export PATH="$HOME/.local/bin:$PATH"
 
