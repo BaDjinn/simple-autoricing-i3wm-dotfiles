@@ -48,24 +48,37 @@ get_logo_path() {
         *) domain="" ;;
     esac
     
-    if [ -z "$domain" ]; then
-        echo ""
-        return
-    fi
-    
     # Path untuk cache logo
     local cache_dir="${HOME}/.cache/eww/logos"
     mkdir -p "$cache_dir"
     local logo_file="${cache_dir}/${brand}.png"
     
+    # Path fallback ke asset lokal
+    local fallback_logo="${HOME}/.config/eww/assets/brand.png"
+    
     # Download logo kalau belum ada (cache)
     if [ ! -f "$logo_file" ]; then
-        local logo_url="https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2F${domain}&size=128"
-        curl -s -o "$logo_file" "$logo_url" 2>/dev/null
-        
-        # Cek apakah download berhasil
-        if [ ! -s "$logo_file" ]; then
-            rm -f "$logo_file"
+        if [ -n "$domain" ]; then
+            local logo_url="https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2F${domain}&size=128"
+            curl -s -o "$logo_file" "$logo_url" 2>/dev/null
+            
+            # Cek apakah download berhasil
+            if [ ! -s "$logo_file" ]; then
+                rm -f "$logo_file"
+                # Gunakan fallback lokal jika ada
+                if [ -f "$fallback_logo" ]; then
+                    echo "$fallback_logo"
+                    return
+                fi
+                echo ""
+                return
+            fi
+        else
+            # Jika domain tidak diketahui, langsung cek fallback lokal
+            if [ -f "$fallback_logo" ]; then
+                echo "$fallback_logo"
+                return
+            fi
             echo ""
             return
         fi

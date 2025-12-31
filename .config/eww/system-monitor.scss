@@ -307,11 +307,6 @@
   padding: 2px 13px 2px 5px;
 }
 
-
-
-
-
-
 /* ========================================
    MEDIA WIDGET
    ======================================== */
@@ -321,6 +316,7 @@
   padding: 10px; 
   border: 1px solid $color8;
   border-radius: 10px;
+  min-height: 230px;
 }
 
 .media-cover-widget {
