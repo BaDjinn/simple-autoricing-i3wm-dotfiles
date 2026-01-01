@@ -12,6 +12,12 @@
 
 ---
 
+## Demo
+
+<video src="./Screenshot/demo.mp4" controls></video>
+
+---
+
 ## Screenshots
 
 <table>
