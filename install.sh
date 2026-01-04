@@ -43,7 +43,7 @@ sudo pacman -S --needed --noconfirm \
     i3-wm i3status i3lock polybar alacritty pcmanfm rofi picom feh scrot xclip conky\
     brightnessctl firefox playerctl lm_sensors imagemagick xsettingsd base-devel git \
     python python-pip python-pipx fish redshift \
-    jq bc dunst
+    jq bc dunst rsync fastfetch 
 
 # Install fonts
 echo "Installing fonts..."
@@ -286,7 +286,7 @@ cat > ~/setup-wpg.sh << 'SETUP'
 #!/bin/bash
 echo "Adding wallpapers to wpg..."
 if command -v wpg &> /dev/null; then
-    for wallpaper in ~/Pictures/Wallpapers/* ~/Pictures/wallpapers/* 2>/dev/null; do
+    for wallpaper in ~/Pictures/Wallpapers/* ~/Pictures/wallpapers/*; do
         [ -f "$wallpaper" ] && wpg -a "$wallpaper" 2>/dev/null && echo "Added: $(basename "$wallpaper")"
     done
     
