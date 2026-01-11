@@ -2,48 +2,43 @@
 
 # SETTINGS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-source "$HOME/.cache/wal/colors.sh"
+source "$HOME/.cache/m3-colors/colors.sh"
 
 # API settings ________________________________________________________________
 
-APIKEY="b3583824922b1ebb7c41be7a351343bc" 
-# if you leave these empty location will be picked based on your ip-adres
+# Open-Meteo 
 CITY_NAME='Jakarta'
 COUNTRY_CODE='ID'
-# Desired output language
+
+# FILL WITH LATITUDE AND LONGITUDE
+LATITUDE="-6.17511"  # Semarang latitude
+LONGITUDE="106.86504"  # Semarang longitude
+
+# Desired output language 
 LANG="en"
-# UNITS can be "metric", "imperial" or "kelvin". Set KNOTS to "yes" if you
-# want the wind in knots:
 
-#          | temperature | wind
-# -----------------------------------
-# metric   | Celsius     | km/h
-# imperial | Fahrenheit  | miles/hour
-# kelvin   | Kelvin      | km/h
-
+# UNITS: "metric" or "imperial"
 UNITS="metric"
 
 # Color Settings ______________________________________________________________
 
-# Color Settings (using wpg colors)
-
-COLOR_CLOUD="$color8"           
-COLOR_THUNDER="$color3"         
-COLOR_LIGHT_RAIN="$color4"     
-COLOR_HEAVY_RAIN="$color6"    
+COLOR_CLOUD="$color7"           
+COLOR_THUNDER="$color7"         
+COLOR_LIGHT_RAIN="$color7"     
+COLOR_HEAVY_RAIN="$color7"    
 COLOR_SNOW="$color7"            
-COLOR_FOG="$color8"            
-COLOR_TORNADO="$color1"        
-COLOR_SUN="$color3"            
+COLOR_FOG="$color7"            
+COLOR_TORNADO="$color7"        
+COLOR_SUN="$color7"            
 COLOR_MOON="$color7"            
-COLOR_ERR="$color1"             
-COLOR_WIND="$color4"           
-COLOR_COLD="$color6"            
-COLOR_HOT="$color1"             
+COLOR_ERR="$color7"             
+COLOR_WIND="$color7"           
+COLOR_COLD="$color7"            
+COLOR_HOT="$color7"             
 COLOR_NORMAL_TEMP="$color7"     
 
-# Leave "" if you want the default polybar color
 COLOR_TEXT=""
+
 # Polybar settings ____________________________________________________________
 
 # Font for the weather icons
@@ -66,15 +61,10 @@ KNOTS="yes"
 # How many decimals after the floating point
 DECIMALS=0
 
-# Min. wind force required to display wind info (it depends on what
-# measurement unit you have set: knots, m/s or mph). Set to 0 if you always
-# want to display wind info. It's ignored if DISPLAY_WIND is false.
-
+# Min. wind force required to display wind info
 MIN_WIND=11
 
-# Display the numeric wind force or not. If not, only the wind icon will
-# appear. yes/no
-
+# Display the numeric wind force or not. yes/no
 DISPLAY_FORCE="yes"
 
 # Display the wind unit if wind force is displayed. yes/no
@@ -99,101 +89,145 @@ if [ "$COLOR_TEXT" != "" ]; then
     COLOR_TEXT_BEGIN="%{F$COLOR_TEXT}"
     COLOR_TEXT_END="%{F-}"
 fi
-if [ -z "$CITY_NAME" ]; then
-    IP=`curl -s ifconfig.me`  # == ip
-    IPCURL=$(curl -s https://ipinfo.io/$IP)
-    CITY_NAME=$(echo $IPCURL | jq -r ".city")
-    COUNTRY_CODE=$(echo $IPCURL | jq -r ".country")
+
+# Jika latitude/longitude tidak diisi, coba gunakan geocoding
+if [ -z "$LATITUDE" ] || [ -z "$LONGITUDE" ]; then
+    if [ -z "$CITY_NAME" ]; then
+        # Jika city juga kosong, gunakan IP location
+        IP=`curl -s ifconfig.me`
+        IPCURL=$(curl -s https://ipinfo.io/$IP)
+        CITY_NAME=$(echo $IPCURL | jq -r ".city")
+        COUNTRY_CODE=$(echo $IPCURL | jq -r ".country")
+    fi
+    
+    # Gunakan Open-Meteo Geocoding API untuk mendapatkan koordinat
+    GEOCODE_URL="https://geocoding-api.open-meteo.com/v1/search?name=$CITY_NAME&count=1&language=en&format=json"
+    GEOCODE_RESPONSE=`curl -s "$GEOCODE_URL"`
+    
+    if [ "$1" = "-d" ]; then
+        echo "Geocoding response: $GEOCODE_RESPONSE"
+    fi
+    
+    LATITUDE=$(echo $GEOCODE_RESPONSE | jq -r '.results[0].latitude')
+    LONGITUDE=$(echo $GEOCODE_RESPONSE | jq -r '.results[0].longitude')
+    
+    if [ "$LATITUDE" = "null" ] || [ "$LONGITUDE" = "null" ]; then
+        echo "Error: Could not find coordinates for $CITY_NAME"
+        exit 1
+    fi
 fi
 
 RESPONSE=""
 ERROR=0
 ERR_MSG=""
-if [ $UNITS = "kelvin" ]; then
-    UNIT_URL=""
+
+# Temperature unit untuk Open-Meteo
+if [ "$UNITS" = "imperial" ]; then
+    TEMP_UNIT_PARAM="temperature_unit=fahrenheit"
 else
-    UNIT_URL="&units=$UNITS"
+    TEMP_UNIT_PARAM="temperature_unit=celsius"
 fi
-URL="api.openweathermap.org/data/2.5/weather?appid=$APIKEY$UNIT_URL&lang=$LANG&q=$(echo $CITY_NAME| sed 's/ /%20/g'),${COUNTRY_CODE}"
+
+# Wind speed unit untuk Open-Meteo
+if [ $KNOTS == "yes" ]; then
+    WIND_UNIT_PARAM="windspeed_unit=kn"
+elif [ "$UNITS" = "imperial" ]; then
+    WIND_UNIT_PARAM="windspeed_unit=mph"
+else
+    WIND_UNIT_PARAM="windspeed_unit=kmh"
+fi
+
+# Open-Meteo API URL
+URL="https://api.open-meteo.com/v1/forecast?latitude=$LATITUDE&longitude=$LONGITUDE&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise,sunset&${TEMP_UNIT_PARAM}&${WIND_UNIT_PARAM}&timezone=auto"
 
 function getData {
     ERROR=0
-    # For logging purposes
-    # echo " " >> "$HOME/.weather.log"
-    # echo `date`" ################################" >> "$HOME/.weather.log"
-    RESPONSE=`curl -s $URL`
+    RESPONSE=`curl -s "$URL"`
     CODE="$?"
+    
     if [ "$1" = "-d" ]; then
-        echo $RESPONSE
+        echo "URL: $URL"
+        echo "Response: $RESPONSE"
         echo ""
     fi
-    # echo "Response: $RESPONSE" >> "$HOME/.weather.log"
-    RESPONSECODE=0
-    if [ $CODE -eq 0 ]; then
-        RESPONSECODE=`echo $RESPONSE | jq .cod`
-    fi
-    if [ $CODE -ne 0 ] || [ ${RESPONSECODE:=429} -ne 200 ]; then
-        if [ $CODE -ne 0 ]; then
-            ERR_MSG="curl Error $CODE"
-            # echo "curl Error $CODE" >> "$HOME/.weather.log"
-        else
-            ERR_MSG="Conn. Err. $RESPONSECODE"
-            # echo "API Error $RESPONSECODE" >> "$HOME/.weather.log"
-        fi
+    
+    if [ $CODE -ne 0 ]; then
+        ERR_MSG="curl Error $CODE"
         ERROR=1
-    # else
-    #     echo "$RESPONSE" > "$HOME/.weather-last"
-    #     echo `date +%s` >> "$HOME/.weather-last"
+    elif [ -z "$RESPONSE" ]; then
+        ERR_MSG="Empty Response"
+        ERROR=1
+    else
+        # Check if response contains error
+        HAS_ERROR=$(echo $RESPONSE | jq -r '.error // false')
+        if [ "$HAS_ERROR" = "true" ]; then
+            ERR_MSG="API Error"
+            ERROR=1
+        fi
     fi
 }
 
 function setIcons {
-    if [ $WID -le 232 ]; then
-        #Thunderstorm
+    # WMO Weather interpretation codes (WW)
+    # 0: Clear sky
+    # 1-3: Mainly clear, partly cloudy, and overcast
+    # 45, 48: Fog
+    # 51-57: Drizzle
+    # 61-67: Rain
+    # 71-77: Snow
+    # 80-82: Rain showers
+    # 85-86: Snow showers
+    # 95-99: Thunderstorm
+    
+    WID=$1
+    DATE=$(date +%s)
+    
+    if [ $WID -ge 95 ]; then
+        # Thunderstorm
         ICON_COLOR=$COLOR_THUNDER
         if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
             ICON=" "
         else
             ICON=" "
         fi
-    elif [ $WID -le 311 ]; then
-        #Light drizzle
+    elif [ $WID -ge 85 ]; then
+        # Snow showers
+        ICON_COLOR=$COLOR_SNOW
+        ICON=" "
+    elif [ $WID -ge 80 ]; then
+        # Rain showers
+        ICON_COLOR=$COLOR_HEAVY_RAIN
+        if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
+            ICON="殺"
+        else
+            ICON="殺"
+        fi
+    elif [ $WID -ge 71 ]; then
+        # Snow
+        ICON_COLOR=$COLOR_SNOW
+        ICON=" "
+    elif [ $WID -ge 61 ]; then
+        # Rain
+        ICON_COLOR=$COLOR_HEAVY_RAIN
+        if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
+            ICON=" "
+        else
+            ICON=" "
+        fi
+    elif [ $WID -ge 51 ]; then
+        # Drizzle
         ICON_COLOR=$COLOR_LIGHT_RAIN
         if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
             ICON=" "
         else
             ICON=" "
         fi
-    elif [ $WID -le 321 ]; then
-        #Heavy drizzle
-        ICON_COLOR=$COLOR_HEAVY_RAIN
-        if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
-            ICON="殺"
-        else
-            ICON="殺"
-        fi
-    elif [ $WID -le 531 ]; then
-        #Rain
-        ICON_COLOR=$COLOR_HEAVY_RAIN
-        if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
-            ICON=" "
-        else
-            ICON=" "
-        fi
-    elif [ $WID -le 622 ]; then
-        #Snow
-        ICON_COLOR=$COLOR_SNOW
-        ICON=" "
-    elif [ $WID -le 771 ]; then
-        #Fog
+    elif [ $WID -ge 45 ]; then
+        # Fog
         ICON_COLOR=$COLOR_FOG
         ICON=" "
-    elif [ $WID -eq 781 ]; then
-        #Tornado
-        ICON_COLOR=$COLOR_TORNADO
-        ICON="ﮃ "
-    elif [ $WID -eq 800 ]; then
-        #Clear sky
+    elif [ $WID -eq 0 ]; then
+        # Clear sky
         if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
             ICON_COLOR=$COLOR_SUN
             ICON=" "
@@ -201,79 +235,73 @@ function setIcons {
             ICON_COLOR=$COLOR_MOON
             ICON=" "
         fi
-    elif [ $WID -eq 801 ]; then
-        # Few clouds
-        if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
-            ICON_COLOR=$COLOR_SUN
-            ICON="󰅟 " 
+    elif [ $WID -ge 1 ] && [ $WID -le 3 ]; then
+        # Partly cloudy to overcast
+        if [ $WID -eq 1 ]; then
+            # Few clouds
+            if [ $DATE -ge $SUNRISE -a $DATE -le $SUNSET ]; then
+                ICON_COLOR=$COLOR_SUN
+                ICON="󰅟 " 
+            else
+                ICON_COLOR=$COLOR_MOON
+                ICON=" "
+            fi
         else
-            ICON_COLOR=$COLOR_MOON
-            ICON=" "
+            # Overcast
+            ICON_COLOR=$COLOR_CLOUD
+            ICON="󰅟 " 
         fi
-    elif [ $WID -le 804 ]; then
-        # Overcast
-        ICON_COLOR=$COLOR_CLOUD
-        ICON="󰅟 " 
     else
         ICON_COLOR=$COLOR_ERR
         ICON=" "
     fi
     
     WIND=""
-    WINDFORCE=$(echo "$RESPONSE" | jq -r .wind.speed)
+    WINDFORCE=$WINDFORCE_ACTUAL
     WINDICON=" "
     
     if [ $BEAUFORTICON == "yes" ]; then
-        WINDFORCE2=$(echo "scale=$DECIMALS;$WINDFORCE * 3.6 / 1" | bc)
-        if [ $WINDFORCE2 -le 1 ]; then
-            WINDICON=" "
-        elif [ $WINDFORCE2 -gt 1 ] && [ $WINDFORCE2 -le 5 ]; then
-            WINDICON=" "
-        elif [ $WINDFORCE2 -gt 5 ] && [ $WINDFORCE2 -le 11 ]; then
+        # Convert to km/h for Beaufort calculation
+        if [ $KNOTS == "yes" ]; then
+            WINDFORCE2=$(echo "scale=2;$WINDFORCE_ACTUAL * 1.852 / 1" | bc)
+        elif [ "$UNITS" = "imperial" ]; then
+            WINDFORCE2=$(echo "scale=2;$WINDFORCE_ACTUAL * 1.60934 / 1" | bc)
+        else
+            WINDFORCE2=$WINDFORCE_ACTUAL
+        fi
+        
+        if (( $(echo "$WINDFORCE2 <= 1" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 11 ] && [ $WINDFORCE2 -le 19 ]; then
+        elif (( $(echo "$WINDFORCE2 > 1 && $WINDFORCE2 <= 5" | bc -l) )); then
+            WINDICON=" "
+        elif (( $(echo "$WINDFORCE2 > 5 && $WINDFORCE2 <= 11" | bc -l) )); then
+            WINDICON=" "
+        elif (( $(echo "$WINDFORCE2 > 11 && $WINDFORCE2 <= 19" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 19 ] && [ $WINDFORCE2 -le 28 ]; then
+        elif (( $(echo "$WINDFORCE2 > 19 && $WINDFORCE2 <= 28" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 28 ] && [ $WINDFORCE2 -le 38 ]; then
+        elif (( $(echo "$WINDFORCE2 > 28 && $WINDFORCE2 <= 38" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 38 ] && [ $WINDFORCE2 -le 49 ]; then
+        elif (( $(echo "$WINDFORCE2 > 38 && $WINDFORCE2 <= 49" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 49 ] && [ $WINDFORCE2 -le 61 ]; then
+        elif (( $(echo "$WINDFORCE2 > 49 && $WINDFORCE2 <= 61" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 61 ] && [ $WINDFORCE2 -le 74 ]; then
+        elif (( $(echo "$WINDFORCE2 > 61 && $WINDFORCE2 <= 74" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 74 ] && [ $WINDFORCE2 -le 88 ]; then
+        elif (( $(echo "$WINDFORCE2 > 74 && $WINDFORCE2 <= 88" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 88 ] && [ $WINDFORCE2 -le 102 ]; then
+        elif (( $(echo "$WINDFORCE2 > 88 && $WINDFORCE2 <= 102" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 102 ] && [ $WINDFORCE2 -le 117 ]; then
+        elif (( $(echo "$WINDFORCE2 > 102 && $WINDFORCE2 <= 117" | bc -l) )); then
             WINDICON=" "
-        elif [ $WINDFORCE2 -gt 117 ]; then
+        else
             WINDICON=" "
         fi
     fi
     
-    if [ $KNOTS == "yes" ]; then
-        case $UNITS in
-            "imperial") 
-                # The division by one is necessary because scale works only for divisions. bc is stupid.
-                WINDFORCE=$(echo "scale=$DECIMALS;$WINDFORCE * 0.8689762419 / 1" | bc)
-                ;;
-            *)
-                WINDFORCE=$(echo "scale=$DECIMALS;$WINDFORCE * 1.943844 / 1" | bc)
-                ;;
-        esac
-    else
-        if [ $UNITS != "imperial" ]; then
-            # Conversion from m/s to km/h
-            WINDFORCE=$(echo "scale=$DECIMALS;$WINDFORCE * 3.6 / 1" | bc)
-        else
-            WINDFORCE=$(echo "scale=$DECIMALS;$WINDFORCE / 1" | bc)
-        fi
-    fi
+    WINDFORCE=$(echo "scale=$DECIMALS;$WINDFORCE / 1" | bc)
     
-    if [ "$DISPLAY_WIND" == "yes" ] && (( $(echo "$WINDFORCE >= $MIN_WIND" |bc -l) )); then
+    if [ "$DISPLAY_WIND" == "yes" ] && (( $(echo "$WINDFORCE >= $MIN_WIND" | bc -l) )); then
         WIND="%{T$WEATHER_FONT_CODE}%{F$COLOR_WIND}$WINDICON%{F-}%{T-}"
         if [ "$DISPLAY_FORCE" == "yes" ]; then
             WIND="$WIND $COLOR_TEXT_BEGIN$WINDFORCE$COLOR_TEXT_END"
@@ -290,50 +318,86 @@ function setIcons {
         WIND="$WIND |"
     fi
     
-    if [ "$UNITS" == "metric" ]; then
-        
-        TEMP_UNIT="°C"
-    elif [ "$UNITS" == "imperial" ]; then
+    if [ "$UNITS" == "imperial" ]; then
         TEMP_UNIT="°F"
     else
-        TEMP_UNIT="K"
+        TEMP_UNIT="°C"
     fi
     
     TEMP=$(echo "$TEMP" | cut -d "." -f 1)
     
     if [ "$TEMP" -le $COLD_TEMP ]; then
-        TEMP="%{F$COLOR_COLD}%{T$TEMP_FONT_CODE}%{T-}%{F-} $COLOR_TEXT_BEGIN$TEMP%{T$TEMP_FONT_CODE}$TEMP_ICON%{T-}$TEMP_UNIT$COLOR_TEXT_END"
-    elif [ $(echo "$TEMP >= $HOT_TEMP" | bc) -eq 1 ]; then
-        TEMP="%{F$COLOR_HOT}%{T$TEMP_FONT_CODE}%{T-}%{F-} $COLOR_TEXT_BEGIN$TEMP%{T$TEMP_FONT_CODE}$TEMP_ICON%{T-}$TEMP_UNIT$COLOR_TEXT_END"
+        TEMP="%{F$COLOR_COLD}%{T$TEMP_FONT_CODE}%{T-}%{F-} $COLOR_TEXT_BEGIN$TEMP%{T$TEMP_FONT_CODE}$TEMP_ICON%{T-}$TEMP_UNIT$COLOR_TEXT_END"
+    elif (( $(echo "$TEMP >= $HOT_TEMP" | bc -l) )); then
+        TEMP="%{F$COLOR_HOT}%{T$TEMP_FONT_CODE}%{T-}%{F-} $COLOR_TEXT_BEGIN$TEMP%{T$TEMP_FONT_CODE}$TEMP_ICON%{T-}$TEMP_UNIT$COLOR_TEXT_END"
     else
-        TEMP="%{F$COLOR_NORMAL_TEMP}%{T$TEMP_FONT_CODE}%{T-}%{F-} $COLOR_TEXT_BEGIN$TEMP%{T$TEMP_FONT_CODE}$TEMP_ICON%{T-}$TEMP_UNIT$COLOR_TEXT_END"
+        TEMP="%{F$COLOR_NORMAL_TEMP}%{T$TEMP_FONT_CODE}%{T-}%{F-} $COLOR_TEXT_BEGIN$TEMP%{T$TEMP_FONT_CODE}$TEMP_ICON%{T-}$TEMP_UNIT$COLOR_TEXT_END"
     fi
 }
 
 function outputCompact {
     OUTPUT="%{T$WEATHER_FONT_CODE}%{F$ICON_COLOR}$ICON%{F-}%{T-} $ERR_MSG$COLOR_TEXT_BEGIN$DESCRIPTION$COLOR_TEXT_END"
-    # echo "Output: $OUTPUT" >> "$HOME/.weather.log"
     echo "$OUTPUT"
 }
 
+# Weather code description mapping
+function getWeatherDescription {
+    local code=$1
+    case $code in
+        0) echo "Clear";;
+        1) echo "Mainly Clear";;
+        2) echo "Partly Cloudy";;
+        3) echo "Overcast";;
+        45|48) echo "Foggy";;
+        51) echo "Light Drizzle";;
+        53) echo "Moderate Drizzle";;
+        55) echo "Dense Drizzle";;
+        56|57) echo "Freezing Drizzle";;
+        61) echo "Slight Rain";;
+        63) echo "Moderate Rain";;
+        65) echo "Heavy Rain";;
+        66|67) echo "Freezing Rain";;
+        71) echo "Slight Snow";;
+        73) echo "Moderate Snow";;
+        75) echo "Heavy Snow";;
+        77) echo "Snow Grains";;
+        80) echo "Slight Showers";;
+        81) echo "Moderate Showers";;
+        82) echo "Violent Showers";;
+        85) echo "Slight Snow Showers";;
+        86) echo "Heavy Snow Showers";;
+        95) echo "Thunderstorm";;
+        96) echo "Thunderstorm Light Hail";;
+        99) echo "Thunderstorm Heavy Hail";;
+        *) echo "Unknown";;
+    esac
+}
+
 getData $1
+
 if [ $ERROR -eq 0 ]; then
-    MAIN=`echo $RESPONSE | jq .weather[0].main`
-    WID=`echo $RESPONSE | jq .weather[0].id`
-    DESC=`echo $RESPONSE | jq .weather[0].description`
-    SUNRISE=`echo $RESPONSE | jq .sys.sunrise`
-    SUNSET=`echo $RESPONSE | jq .sys.sunset`
-    DATE=`date +%s`
-    WIND=""
-    TEMP=`echo $RESPONSE | jq .main.temp`
+    # Parse current weather dari Open-Meteo
+    TEMP=$(echo $RESPONSE | jq -r '.current.temperature_2m')
+    WID=$(echo $RESPONSE | jq -r '.current.weather_code')
+    WINDFORCE_ACTUAL=$(echo $RESPONSE | jq -r '.current.wind_speed_10m')
+    HUMIDITY=$(echo $RESPONSE | jq -r '.current.relative_humidity_2m')
+    
+    # Parse sunrise/sunset (dalam format ISO8601)
+    SUNRISE_ISO=$(echo $RESPONSE | jq -r '.daily.sunrise[0]')
+    SUNSET_ISO=$(echo $RESPONSE | jq -r '.daily.sunset[0]')
+    
+    # Convert ISO8601 to unix timestamp
+    SUNRISE=$(date -d "$SUNRISE_ISO" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M" "$SUNRISE_ISO" +%s 2>/dev/null || echo "0")
+    SUNSET=$(date -d "$SUNSET_ISO" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M" "$SUNSET_ISO" +%s 2>/dev/null || echo "0")
+    
     if [ $DISPLAY_LABEL = "yes" ]; then
-        DESCRIPTION=`echo "$RESPONSE" | jq .weather[0].description | tr -d '"' | awk '{for (i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)} 1'`" "
+        DESCRIPTION=$(getWeatherDescription $WID)" "
     else
         DESCRIPTION=""
     fi
-    PRESSURE=`echo $RESPONSE | jq .main.pressure`
-    HUMIDITY=`echo $RESPONSE | jq .main.humidity`
-    setIcons
+    
+    WIND=""
+    setIcons $WID
     outputCompact
 else
     echo " "
