@@ -17,11 +17,11 @@
 
 **Clean Desktop**
 
-![Clean Desktop](./Screenshot/clean-desktop.png)
+![Clean Desktop](./Screenshot/clean.png)
 
 **Busy Desktop**
 
-![Busy Desktop](./Screenshot/busy-desktop.png)
+![Busy Desktop](./Screenshot/busy.png)
 
 **Minimalist Desktop**
 
