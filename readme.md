@@ -40,12 +40,16 @@
 
 ## Stack
 
-| Component | App | Component | App |
-|:---|:---|:---|:---|
-| WM | i3-wm | Terminal | Alacritty |
-| Bar | Eww | Shell | Fish |
-| Theming | m3wal | Launcher | Rofi |
-| Compositor | Picom | Notifications | Dunst |
+| Component | App | 
+|:---|:---|
+| WM | i3-wm | 
+| Bar | Eww |
+| Theming | m3wal | 
+| Compositor | Picom | 
+| Terminal | Alacritty |
+| Shell | Fish |
+| Launcher | Rofi |
+| Notifications | Dunst |
 
 ---
 
@@ -75,12 +79,16 @@ chmod +x install.sh
 
 ### Keybindings
 
-| Key | Action | Key | Action |
-|:---|:---|:---|:---|
-| `Super + Enter` | Terminal | `Super + d` | Launcher |
-| `Super + Shift + q` | Close window | `Super + Shift + r` | Reload i3 |
-| `Super + h/j/k/l` | Focus | `Super + Shift + h/j/k/l` | Move window |
-| `Super + 1-9` | Workspace | `Super + Shift + b` | Change wallpaper |
+| Key | Action |
+|:---|:---|
+| `Super + Enter` | Terminal | 
+| `Super + Shift + q` | Close window | 
+| `Super + h/j/k/l` | Focus | 
+| `Super + 1-9` | Workspace | 
+| `Super + d` | Launcher |
+| `Super + Shift + r` | Reload i3 |
+| `Super + Shift + h/j/k/l` | Move window |
+| `Super + Shift + b` | Change wallpaper |
 
 ### Theming
 
