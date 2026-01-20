@@ -372,7 +372,7 @@
     ;; Logo laptop dari cache
   (box :class "logo-section"
          :halign "center"
-      (image :path {laptop_info.logo_path}
+      (image :path {laptop_info.logo_path != "" ? laptop_info.logo_path : ""}
              :image-width 50
              :image-height 50
              :visible {laptop_info.logo_path != ""}))

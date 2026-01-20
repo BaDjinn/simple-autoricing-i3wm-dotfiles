@@ -3,8 +3,8 @@
 (deflisten workspaces :initial "[]" 
   "bash ~/.config/eww/scripts/get-workspaces.sh")
 
-(deflisten current_mode :initial "default"
-  "i3-msg -t subscribe -m '[\"mode\"]' | jq -r '.change'")
+(deflisten current-mode :initial "default"
+  "~/.config/eww/scripts/i3-mode.sh")
 
 ;; Definisi variable untuk window title
 (defpoll active_window :interval "1s"
@@ -18,6 +18,13 @@
 ;; Variable untuk waktu
 (defpoll time :interval "1s"
   "date '+%H:%M'")
+
+(defwidget mode-indicator []
+  (box :class "mode-indicator"
+       :valign "center"
+       :vexpand false
+       :visible {current-mode != "default"}
+    (label :class "indicator-i3" :text "${current-mode}")))
 
 (defwidget workspaces_widget []
   (eventbox
@@ -56,6 +63,8 @@
       (workspaces_widget)
       (label :class "weather-bar" :text WEATHER_ICON)
       (label :class "text-weather-bar" :text WEATHER_DESC)
+
+      (mode-indicator)
     )
     
     ;; Bagian Tengah (center) 
