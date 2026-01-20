@@ -270,7 +270,7 @@
 
 /* Connected network highlight */
 .wifi-network-item.wifi-connected {
-  background-color: transparentize($surface-container-high, 0.1);
+  background-color: transparentize($surface-container, 0.1);
   border-left: 3px solid $primary;
 }
 

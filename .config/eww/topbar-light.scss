@@ -35,6 +35,21 @@
   min-height: 18px;
 }
 
+.mode-indicator {
+  background-color: $surface;
+  padding: 0 10px;
+  border-radius: 15px;
+  min-height: 18px;
+  animation: pulse 2s infinite;
+}
+
+.indicator-i3 {
+  font-family: "Iosevka Nerd Font";
+  font-size: 13px;
+  font-weight: bold;
+  color: $on-surface;
+}
+
 .bar-section-right {
   padding: 0px;
   min-height: 18px;
