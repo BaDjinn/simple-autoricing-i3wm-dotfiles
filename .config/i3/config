@@ -28,7 +28,6 @@ for_window [class="Viewnior"] floating enable, sticky enable, resize set 960 540
 for_window [class="mpv"] floating enable, resize set 1090 615, move position center
 for_window [class="Engrampa"] floating enable, resize set 890 500, move position center
 for_window [class="Audacious"] floating enable, resize set 550 410, move position center
-
 set $mod Mod4
 
 # Set colors from Xresources
@@ -225,6 +224,8 @@ exec --no-startup-id xss-lock -- lock
 
 # Browser binding
 bindsym $mod+b exec firefox
+
+exec_always --no-startup-id ~/.config/eww/scripts/fullscreen-monitor.sh
 
 # Autostart
 exec_always --no-startup-id ~/.config/i3/autostart.sh
