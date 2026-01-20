@@ -3,7 +3,7 @@
 # Please see https://i5wm.org/docs/userguide.html for a complete reference!
 
 # Border configuration
-set $thick 0
+set $thick 2
 
 # DEFAULT BORDER
 for_window [class="^.*"] border pixel $thick
@@ -24,12 +24,10 @@ smart_borders no_gaps
 
 # FLOATING APPLICATIONS
 for_window [class="Blueman-manager"] floating enable
-for_window [class="eww"] floating enable
-for_window [class="qimgv"] floating enable
-for_window [class="eww"] sticky enable
-for_window [class="mpv"] floating enable
-for_window [class="Engrampa"] floating enable
-for_window [class="conky"] floating enable, sticky enable, border none
+for_window [class="Viewnior"] floating enable, sticky enable, resize set 960 540, move position center
+for_window [class="mpv"] floating enable, resize set 1090 615, move position center
+for_window [class="Engrampa"] floating enable, resize set 890 500, move position center
+for_window [class="Audacious"] floating enable, resize set 550 410, move position center
 
 set $mod Mod4
 
@@ -38,8 +36,8 @@ set $mod Mod4
 # from the generated scheme.
 # NOTE: The '#f0f0f0' in the lines below is the color i3 will use if
 # it fails to get colors from Xresources.
-set_from_resource $fg i3wm.color7 #f0f0f0
-set_from_resource $bg i3wm.color2 #f0f0f0
+set_from_resource $fg i3wm.m3onSurfaceVariant #f0f0f0
+set_from_resource $bg i3wm.m3outlineVariant #f0f0f0
 
 # class                 border  backgr. text indicator child_border
 client.focused          $bg     $bg     $fg  $bg       $bg
@@ -69,8 +67,8 @@ bindsym Ctrl+Mod4+Left exec --no-startup-id ~/.config/Scripts/ws_cycle.py prev
 bindsym $mod+l exec --no-startup-id lock
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl -- set-sink-volume 0 +1%
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl -- set-sink-volume 0 -1% 
+bindsym XF86AudioRaiseVolume exec --no-startup-id pamixer -i 1 --set-limit 100
+bindsym XF86AudioLowerVolume exec --no-startup-id pamixer -d 1
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle 
 
 # Sreen brightness controls
@@ -212,12 +210,11 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-# Start polybar to display a workspace bar
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+# Start eww daemon and bar
+exec_always --no-startup-id ~/.config/i3/start-eww.sh
 
 # Initial commands that execute on i3 start.
 exec_always --no-startup-id picom
-exec_always --no-startup-id killall conky; sleep 1 && ~/.config/conky/conky-wal.sh
 exec_always --no-startup-id setxkbmap -layout "us,ru" -option "grp:win_space_toggle"
 
 # Set screen timeout

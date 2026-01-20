@@ -19,10 +19,4 @@ fi
 # Start xsettingsd
 pgrep -x xsettingsd > /dev/null || xsettingsd &
 
-# Kill and restart polybar
-killall -q polybar
-while pgrep -x polybar >/dev/null; do sleep 1; done
-polybar &
 
-# Start eww daemon
-pgrep -x eww > /dev/null || eww daemon &
