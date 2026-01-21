@@ -42,7 +42,7 @@ sudo pacman -S --needed --noconfirm \
     i3-wm i3status i3lock alacritty pcmanfm rofi picom feh scrot xclip \
     brightnessctl firefox playerctl lm_sensors imagemagick xsettingsd \
     python python-pip python-pipx fish redshift \
-    jq bc dunst rsync fastfetch
+    jq bc dunst rsync fastfetch pamixer python-i3ipc
 
 # Install fonts
 echo "Installing fonts..."
@@ -58,7 +58,8 @@ $AUR_HELPER -S --needed --noconfirm \
     mpdris2 \
     ttf-jetbrains-mono-nerd \
     ttf-iosevka-nerd \
-    ttf-twemoji
+    ttf-twemoji \
+    ueberzugpp
 
 # Install custom fonts if available
 if [ -d "fonts" ]; then
@@ -136,6 +137,7 @@ fi
 # Make scripts executable
 echo "Setting permissions..."
 find ~/.config -type f -name "*.sh" -exec chmod +x {} \; 2>/dev/null
+find ~/.config/Scripts -type f -name "*.py" -exec chmod +x {} \; 2>/dev/null
 chmod +x ~/.local/bin/* 2>/dev/null || true
 
 # Initialize m3wal with default wallpaper (if available)
