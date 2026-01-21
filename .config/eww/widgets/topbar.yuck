@@ -8,7 +8,7 @@
 
 ;; Definisi variable untuk window title
 (defpoll active_window :interval "1s"
-  "~/.config/polybar/scripts/xwindow-clickable.sh")
+  "~/.config/eww/scripts/xwindow-clickable.sh")
 
 ;; Definisi variable untuk WiFi
 (defpoll system_status :interval "2s"
