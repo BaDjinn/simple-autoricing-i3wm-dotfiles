@@ -74,7 +74,7 @@ chmod +x install.sh
 - Install all packages (repos + AUR)
 - Backup existing configs to `~/dotfiles_backup_YYYYMMDD_HHMMSS`
 - Install yay if needed
-- Install m3wal via pipx
+- Install m3wal via aur (you can use pipx if you want)
 - Copy all dotfiles
 - Set Fish as default shell
 - Apply initial theme
@@ -201,12 +201,6 @@ scripts = reload-apps.sh
 ---
 
 ## Troubleshooting
-
-**m3wal not found:**
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
 
 **Fonts missing:**
 
