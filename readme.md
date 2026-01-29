@@ -32,7 +32,7 @@
 
 **Colorful Desktop**
 
-![Colorful Desktop](./Screenshot/aurora.png)
+![Colorful Desktop](./Screenshot/city.png)
 
 ---
 
