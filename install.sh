@@ -39,7 +39,7 @@ mkdir -p $BACKUP_DIR
 # Install system packages
 echo "Installing system packages..."
 sudo pacman -S --needed --noconfirm \
-    i3-wm i3status alacritty pcmanfm rofi picom feh scrot xclip xdotool \
+    i3-wm i3status alacritty pcmanfm rofi picom feh scrot xclip xdotool dex \
     brightnessctl firefox playerctl lm_sensors imagemagick xsettingsd \
     python python-pip python-pipx fish redshift inotify-tools\
     jq bc dunst rsync fastfetch pamixer python-i3ipc qt5ct cava tex-gyre-fonts 
