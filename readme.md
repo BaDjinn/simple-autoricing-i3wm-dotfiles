@@ -170,10 +170,15 @@ Deploy via `~/.config/m3-colors/deploy.json`:
 Create in `~/.config/m3-colors/hooks/`:
 
 ```bash
-#!/bin/bash
-# reload-apps.sh
+# Colors are available as environment variables
+echo "Primary color: $M3_M3PRIMARY"
+echo "Mode: $M3_MODE"
+echo "Wallpaper: $M3_WALLPAPER"
+
+# Reload applications
 killall -USR1 kitty
 i3-msg reload
+notify-send "Theme Updated" "Applied $M3_MODE mode"
 ```
 
 Enable:
